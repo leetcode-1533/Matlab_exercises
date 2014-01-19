@@ -6,6 +6,7 @@ clc;
 load data input output;
 pc = 0.25;
 pm = 0.1;
+
 sizepop = 10;
 inputnum = 2;
 hiddennum = 5;
@@ -13,6 +14,7 @@ outputnum = 1;
 sizeall = inputnum*hiddennum + hiddennum*outputnum + hiddennum+ outputnum;
 thebest = zeros(1,sizeall);
 recoder = zeros(30,sizepop);
+bound=[-3*ones(sizepop,1) 3*ones(sizepop,1)];
 
 tknet = cell(sizepop,4);
 newtknet = cell(sizepop,4);
@@ -29,10 +31,15 @@ input_test = mapminmax('apply',input(:,array(1901:2000)),insed);
 
 
 
-net = newff(input,output,5);
+net = newff(input_train,output_train,5);
 
  for i = 1: sizepop
-     tknet{i,1} = rand(1,sizeall);
+     netemp = newff(input_train,output_train,5);
+     n1 = netemp.iw{1,1};
+     n2 = netemp.lw{2,1};
+     n3 = netemp.b{1};
+     n4 = netemp.b{2};
+     tknet{i,1} = [n1(:,1)' n1(:,2)' n2 n3' n4];
      fitemp = fitness(tknet{i,1},inputnum,hiddennum,outputnum,net,input_train,output_train);
      fit = 1/(fitemp+1);
      tknet{i,2} = fit;
@@ -99,7 +106,17 @@ for jk = 1:50
         candidate2 = fix(1+rand*sizeall);
         
         temp = cell2mat(tknet(candidate1,1));
-        temp(1,candidate2) = rand;
+
+        r1 = rand;
+        r2 = rand;
+        
+        if r1 > 0.5 
+            temp(1,candidate2) =  temp(1,candidate2) + (temp(1,candidate2) - bound(candidate1,2))*fg(jk);
+        else 
+            temp(1,candidate2) = temp(1,candidate2) + (bound(candidate1,1)-temp(1,candidate2))*fg(jk);
+        end
+        
+%         temp(1,candidate2) = rand;
         tknet(candidate1,1)={temp};
     end
     %Evaluation
