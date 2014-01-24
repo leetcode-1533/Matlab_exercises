@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 
@@ -18,3 +19,8 @@ ytest = mapminmax('reverse',ytk,oused);
 
 hold on ; 
 plot(ytest,'*');
+=======
+ f = inline('x*y^2+y');
+ 
+ ode45(f,[0 0.5],1);
+>>>>>>> b1b2509edbc5f1190bafb4a1b10ba8ea0ea9ddc7
